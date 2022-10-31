@@ -1,0 +1,20 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.sidebar {
+    flex: 1;
+    min-height: 100vh;
+    border-right: 2px solid rgb(118, 107, 107);
+    margin-right: 20px;
+}
+
+.sidebar > .files {
+    padding-left: 4px;
+    text-align: left;
+    background-color: rgb(34, 30, 75);
+    color: white;
+}
+  

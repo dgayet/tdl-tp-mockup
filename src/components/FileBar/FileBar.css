@@ -1,0 +1,12 @@
+.fileBar {
+    display: flex;
+    background-color: gray;
+    color: white;
+    justify-content: flex-start;
+    min-width: 30%;
+    margin-bottom: 10px;
+}
+
+.fileBar > button {
+    margin-left: 25px;
+}
