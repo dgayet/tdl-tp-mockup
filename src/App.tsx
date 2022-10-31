@@ -4,7 +4,10 @@ import Editor from './components/Editor/Editor'
 import FileUploader from './components/FileUploader/FileUploader';
 import Sidebar from './components/Sidebar/Sidebar'
 import FileBar from './components/FileBar/FileBar';
+import FileCreator from './components/FileCreator/FileCreator'
 import './App.css';
+import { create } from 'domain';
+import { stringify } from 'querystring';
 
 const file_server = 'http://localhost:5001/files'
 
@@ -20,7 +23,7 @@ function App() {
   const [input, setInput] = useState("");
   const [files, setFiles] = useState<file[]>([]);
   const [isFileSelected, setFileSelected] = useState<boolean>(false);
-  const [selectedFile, setSelectedFile] = useState<file>();
+  const [selectedFile, setSelectedFile] = useState<file>({fileName:"", fileBody:"", id:""});
 
   useEffect(() => {
     const getFiles = async() => {
@@ -34,7 +37,7 @@ function App() {
   const fetchFiles = async () => {
     const res = await fetch(file_server);
     const data = await res.json();
-
+    
     return data;
   }
 
@@ -43,6 +46,32 @@ function App() {
     const data = await res.json();
 
     return data;
+  }
+
+  const createFile = async (fileName: string) => {
+    const filesFS = await fetchFiles();
+    const length = filesFS.length;
+
+    const newFile : file = {
+      fileName: fileName,
+      fileBody: "",
+      id: length+1
+    }
+
+    const res = await fetch(file_server,
+      {
+        method: 'POST',
+        headers: {
+          'Content-type' : 'application/json'
+        },
+        body: JSON.stringify(newFile)
+      })
+    
+    const data = await res.json();
+
+    setFiles([...files,newFile]);
+    setFileSelected(true);
+    setSelectedFile(data.id);
   }
 
   const addFile = async (file: File) => {
@@ -72,10 +101,6 @@ function App() {
     }
   }
 
-  const deleteFile = () => {
-    console.log('deleted file');
-  }
-
   const updateFile = async (fileContent: string) => {
     if (!selectedFile) return;
     const data : file = {
@@ -93,6 +118,14 @@ function App() {
       }
       )
     setInput(fileContent);
+  }
+
+  const downloadFile = () => {
+    console.log('download file');
+  }
+
+  const deleteFile = () => {
+    console.log('deleted file');
   }
 
   const readFileAsText = (file: File) => new Promise((resolve, eject) => {
@@ -115,18 +148,19 @@ function App() {
       <div className="container">
         <div className="ControlsBox">
           <FileUploader onSubmit={addFile}/>
+          <FileCreator onSubmit={createFile}/>
         </div>
         <div className="PanelsBox"> 
-          {selectedFile ? <FileBar 
+          {selectedFile.fileName ? <><FileBar 
             selectedFile={selectedFile}
-          /> : ''}
+          />
           <Editor
             prevInput={input}
             placeHolder={"start coding here..."}
             onChange={(e : React.ChangeEvent<HTMLInputElement> ) =>
               updateFile(e.currentTarget.value)}
             onKeyDown={() => {}}
-          />
+          /></> : <></>}
         </div>
       </div>
     </div>
